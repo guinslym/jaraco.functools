@@ -80,11 +80,10 @@ def once(func):
 def method_cache(method, cache_wrapper=None):
     """
     Wrap lru_cache to support storing the cache data in the object instances.
-    
+
     Abstracts the common paradigm where the method explicitly saves an
     underscore-prefixed protected property on first call and returns that
     subsequently.
-    
     >>> class MyClass:
     ...     calls = 0
     ...
@@ -92,7 +91,6 @@ def method_cache(method, cache_wrapper=None):
     ...     def method(self, value):
     ...         self.calls += 1
     ...         return value
-    
     >>> a = MyClass()
     >>> a.method(3)
     3
@@ -100,12 +98,10 @@ def method_cache(method, cache_wrapper=None):
     ...     res = a.method(x)
     >>> a.calls
     75
-    
     Note that the apparent behavior will be exactly like that of lru_cache
     except that the cache is stored on each instance, so values in one
     instance will not flush values from another, and when an instance is
     deleted, so are the cached values for that instance.
-    
     >>> b = MyClass()
     >>> for x in range(35):
     ...     res = b.method(x)
@@ -115,26 +111,19 @@ def method_cache(method, cache_wrapper=None):
     0
     >>> a.calls
     75
-    
     Note that if method had been decorated with ``functools.lru_cache()``,
     a.calls would have been 76 (due to the cached value of 0 having been
     flushed by the 'b' instance).
-    
     Clear the cache with ``.cache_clear()``
-    
     >>> a.method.cache_clear()
-    
     Another cache wrapper may be supplied:
-    
     >>> cache = lru_cache(maxsize=2)
     >>> MyClass.method2 = method_cache(lambda self: 3, cache_wrapper=cache)
     >>> a = MyClass()
     >>> a.method2()
     3
-    
     Caution - do not subsequently wrap the method with another decorator, such
     as ``@property``, which changes the semantics of the function.
-    
     See also
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
@@ -217,18 +206,18 @@ class Throttler(object):
             func = func.func
         self.func = func
         self.max_rate = max_rate
-        self.reset()    
+        self.reset()
     def reset(self):
-        self.last_called = 0    
+        self.last_called = 0
     def __call__(self, *args, **kwargs):
         self._wait()
-        return self.func(*args, **kwargs)    
+        return self.func(*args, **kwargs)
     def _wait(self):
         "ensure at least 1/max_rate seconds from last call"
         elapsed = time.time() - self.last_called
         must_wait = 1 / self.max_rate - elapsed
         time.sleep(max(0, must_wait))
-        self.last_called = time.time()    
+        self.last_called = time.time()
     def __get__(self, obj, type=None):
         return first_invoke(self._wait, functools.partial(self.func, obj))
 
@@ -256,7 +245,7 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
         try:
             return func()
         except trap:
-            cleanup()    
+            cleanup()
     return func()
 
 
